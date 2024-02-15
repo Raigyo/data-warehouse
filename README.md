@@ -111,11 +111,11 @@ Data warehouses have several functional layers, each with specific capabilities.
 
 ![Layers](_readme_img/layers4.png)
 
-#### **Source layer**
+#### Source layer
 
 The logical layer of all systems of record (SOR) that feed data into the warehouse. They could include point-of-sale, marketing automation, CRM, or ERP systems. Each source SOR has a specific data format and may require a different data capture method based on that data format.
 
-#### **Staging layer** 
+#### Staging layer
 
 A landing area for data from the source SOR. A data staging best practice is to ingest data from the SOR without applying business logic or transformations. It’s also critical to ensure that staging data is not used in production data analysis; data in the staging area has yet to be cleansed, standardized, modeled, governed, and verified.
 
@@ -125,7 +125,7 @@ So we can use temporary staging layer (truncated) or persitant one (not truncate
 
 ![Layers](_readme_img/layers1.png)
 
-#### **Warehouse layer**
+#### Warehouse layer
 
 The layer where all of the data is stored. The warehouse data is now subject-oriented, integrated, time-variant, and non-volatile. This layer will have the physical schemas, tables, views, stored procedures, and functions needed to access the warehouse-modeled data. This layer is also known as **the single point of truth**.
 
@@ -141,7 +141,7 @@ A data mart generally extracts data from just a few sources, compared with a dat
 
 ![Layers](_readme_img/datamart.png)
 
-#### **Consumption layer**
+#### Consumption layer
 
 Also known as the analytics layer, is where you model data for consumption using analytics tools like ThoughtSpot, data analysts, data scientists, and business users.
 
@@ -278,6 +278,32 @@ Dimensions are not aggregatable even if the can contain numerical values. They h
 The values usually don't change, they are static (exemple: name of a product or a customer).
 
 ![Dimenions](_readme_img/dimensional-modeling-5.png)
+
+### Star schema
+
+A star schema is a type of data modeling technique used in data warehousing to represent data in a structured and intuitive way. In a star schema, data is organized into a central fact table that contains the measures of interest, surrounded by dimension tables that describe the attributes of the measures.
+
+The fact table in a star schema contains the measures or metrics that are of interest to the user or organization. For example, in a sales data warehouse, the fact table might contain sales revenue, units sold, and profit margins. Each record in the fact table represents a specific event or transaction, such as a sale or order.
+
+The dimension tables in a star schema contain the descriptive attributes of the measures in the fact table. These attributes are used to slice and dice the data in the fact table, allowing users to analyze the data from different perspectives. For example, in a sales data warehouse, the dimension tables might include product, customer, time, and location.
+
+![Star schema](_readme_img/star.png)
+
+Here in the abovecapture, in product table we have **data redundancy**.
+
+To reduce that reduduncy (using a **normalization** process) we will have to use a snowflake schema.
+
+### Snowflake schema
+
+The snowflake schema consists of one fact table that is connected to many dimension tables, which can be connected to other dimension tables through a many-to-one relationship.
+
+![Snowflake schema](_readme_img/snowflake-1.png)
+
+Tables in a snowflake schema are usually normalized to the third normal form. Each dimension table represents exactly one level in a hierarchy.
+
+![Snowflake schema](_readme_img/snowflake-2.png)
+
+![Snowflake schema](_readme_img/snowflake-3.png)
 
 ## Useful links
 
