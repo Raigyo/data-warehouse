@@ -2,6 +2,8 @@
 
 ## Product and category dimension (snowflakes)
 
+**Goal**: Create a table category from the coumn category of product table.
+
 ### Execute sql queries
 
 ![](_exercices_img/demo-01.png)

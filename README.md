@@ -305,6 +305,113 @@ Tables in a snowflake schema are usually normalized to the third normal form. Ea
 
 ![Snowflake schema](_readme_img/snowflake-3.png)
 
+## Facts
+
+### Additivity in facts
+
+The measures in a fact table can be one of the following types:
+
+**Additive**
+
+Additive measures are measures that **can be aggregated across all of the dimensions** in the fact table, and are the most common type of measure. Additive measures are used across several dimensions for summation purposes.
+Since dimensional modeling involves hierarchies in dimensions, aggregation of information over different members in the hierarchy is a key element in the usefulness of the model. Since aggregation is an additive process, use additive measures as much as possible.
+
+![Additive](_readme_img/facts-additive-1.png)
+
+**Semi-additive**
+
+Semi-additive measures **can be aggregated across some dimensions**, but not all dimensions. For example, measures such as head counts and inventory are considered semi-additive.
+
+![Semi-additive](_readme_img/facts-additive-2.png)
+
+**Non-additive**
+
+Non-additive measures are measures that **cannot be aggregated across any of the dimensions**. These measures cannot be logically aggregated between records or fact rows. Non-additive measures are usually the result of ratios or other mathematical calculations. The only calculation that can be made for such a measure is to get a count of the number of rows of such measures.
+
+![Non-additive](_readme_img/facts-additive-3.png)
+
+### Nulls in facts
+
+SQL and BI tools can deal easily with nulls.
+
+![Null](_readme_img/facts-null.png)
+
+It can be usefull sometimes to change null values by zero.
+
+For instance in the exemple below, to clulate the daily average.
+
+![Null](_readme_img/facts-null-2.png)
+
+If we have null in foreign keys, we have to create somme dummy values instead of these nell otherwise some data will be missing.
+
+![Null](_readme_img/facts-null-3.png)
+
+### Year-to-Date facts
+
+Business users often request year-to-date (YTD) values in a fact table. It is hard to argue against a single request, but YTD requests can easily morph into “YTD at the close of the ﬁscal period” or “ﬁscal period to date.” A more reliable, extensible way to handle these assorted requests is to **calculate the YTD metrics in the BI applications** or OLAP cube rather than storing YTD facts in the fact table.
+
+Because if we aggraegate these dates accross several dimensions, with different grain, our calculations will be wrong.
+
+### Types of fact tables
+
+There are three types of fact tables : transactionan, periodic snapshot, accumulating snapshot.
+
+#### Transactional fact table
+
+A transactional fact table is a fact table where:
+
+- Each event is stored in the fact table only once.
+- It has a date column indicating when the event occurred.
+- It has an identifier column which identifies each event.
+- The number of rows is the same as the source table.
+
+![Transactional](_readme_img/facts-transac.png)
+
+#### Periodic snapshot fact table
+
+A periodic snapshot fact captures the aggregate or balance of a business process or event for a given period. Common examples are monthly financial account balances, monthly bank account balances etc. Periodic Snapshot fact tables are usually built from the data contained in a transaction fact table.
+
+![Periodic](_readme_img/facts-periodic.png)
+
+#### Accumulating snapshot fact table
+
+Accumulating snapshot facts are updatable fact records used to measure time between two or more related events. The most common example of this type of fact can be seen in order processing. 
+
+![Accumulating](_readme_img/facts-accumulating.png)
+
+#### Differences between three types
+
+![3 Types](_readme_img/facts-3types.png)
+
+#### Factless fact table
+
+A factless fact table is a table that contains only foreign keys to dimensions, but no numeric facts. It is used to capture events or situations that have no measurable outcome, but are important for analysis.
+
+![Factless table](_readme_img/factless-1.png)
+
+![Factless table](_readme_img/factless-2.png)
+
+#### Steps to create a fact table
+
+There are 4 keys decisions to design a fact table.
+
+- Identify business process for analysis: sales, order processing...
+- Declare the grain: transaction, order, order lines, daily, daily+location...
+- Identify dimensions that are relevant: what, when, where, how and why...
+- Identify facts for measurement and when we can aggregate them if necessary.
+
+#### Natural vs. Surrogate key
+
+A natural key is a key that is derived from the data itself, such as a customer ID, a product code, or a date. A surrogate key is a key that is generated artificially, such as a sequential number, a GUID, or a hash.
+
+Why using surrogate keys ?
+
+![Surrogate key](_readme_img/surrogate-1.png)
+
+![Surrogate key](_readme_img/surrogate-2.png)
+
+
+
 ## Useful links
 
 - [What is ETL? (IBM)](https://www.ibm.com/topics/etl)
