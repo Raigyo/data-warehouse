@@ -16,7 +16,7 @@ A data warehouse, or enterprise data warehouse (EDW), is a system that aggregate
 
 There are two kinds of data used in a company:
 
-#### 1. Operational data keeping: 
+#### 1. Operational data keeping - OLTP
 
 - Receive orders
 -  React to complaints
@@ -26,7 +26,7 @@ There are two kinds of data used in a company:
 
 **OLTP** = Online Transactional Processing
 
-#### 2. Analytical decision making (DWH):
+#### 2. Analytical decision making (DWH) - OLAP
 
 - What's the best category ?
 - What can be improved?
@@ -305,6 +305,14 @@ Tables in a snowflake schema are usually normalized to the third normal form. Ea
 
 ![Snowflake schema](_readme_img/snowflake-3.png)
 
+### Constellation schema
+
+The fact constellation schema is also known as the galaxy schema. It consists of multiple fact tables that share common dimensions but not other facts. This model is useful when there are different types of transactions or events being captured in the same warehouse, for example sales data vs customer service requests.
+
+![Constellation schema](_readme_img/galaxy-schema.jpg)
+
+
+
 ## Facts
 
 ### Additivity in facts
@@ -410,16 +418,126 @@ Why using surrogate keys ?
 
 ![Surrogate key](_readme_img/surrogate-2.png)
 
+### Case study: E-Commerce
+
+#### The project
+
+![Case study](_readme_img/facts-case-stydy-01.png)
+
+#### Identify the business process
+
+![Case study](_readme_img/facts-case-stydy-02.png)
+
+#### Define the grain
+
+![Case study](_readme_img/facts-case-stydy-03.png)
+
+#### Identify the dimensions
+
+![Case study](_readme_img/facts-case-stydy-04.png)
+
+#### Identify the facts
+
+![Case study](_readme_img/facts-case-stydy-05.png)
+
+#### Result
+
+![Case study](_readme_img/facts-case-stydy-06.png)
+
+## Dimensions
+
+### Dimensions tables
+
+Each dimensional table needs to include a primary key that corresponds to a foreign key in the fact table.  This PK should be a surrogate key (SK). A surrogate key uniquely identifies each entity in the dimension table, regardless of its natural source key. This is primarily because a surrogate key generates a simple integer value for every new entity.
+
+If necessary, we can keep the natural key using a join table.
+
+![Dimensions tables](_readme_img/dimension-table-sk.png)
+
+![Dimensions tables](_readme_img/dimension-table-sk-2.png)
+
+We will use many columns with descriptive attributes to improve research.
+
+Dimension tables are useful to group and filter (slice and dice) the data. Because these tables are the entry point for data analysis.
+
+![Dimensions tables](_readme_img/dimension-table-slice-dice.png)
+
+### Date dimensions
+
+It's one of the most important and used dimension.
+
+Because performances are usually measured over time and across the different date dimensional aspects. Date dimensions give us a built-in calendar which helps minimize complex date operations. 
+
+The surrogate key should use that format: **YYYYMMDD**
+
+In this date dimension, we have to add a dummy value in case if there is no date value in our fact table (no date or null => FK with a dummy value).
+
+![Dimensions tables](_readme_img/dimension-table-date.png)
+
+If the timestamp is a part of the source system and is important for our analysis, it usually owns its dimension table too.
+
+![Dimensions tables](_readme_img/dimension-table-date-2.png)
+
+### Nulls in dimensions
+
+Null must be avoided at all costs in foreign keys in dimensions  that are used to create joins or relationship between dimension tables, by replacing them with a dummy value (ex: -1 ).
+
+Nulls in FK breaks referential integrity and don't appear in Joins.
+
+Of course the dummy value has to have the same data type than other datas in the column!
+
+Nulls can be present in facts (ex: no sales during public hollidays => null otherwise if we use zero, it will screw the average). They works very well with the agreggations (sum, average...).
+
+![Dimensions tables](_readme_img/dimension-nulls.png)
+
+For other values in dimensions tables, null should be replaced with descriptive values.
+
+Because business user have to undertsand what does null refer to and decide if these values will appear in their reporting or not.
+
+![Dimensions tables](_readme_img/dimension-nulls-2.png)
+
+### Hierarchies in dimensions
+
+The data model used to store data in the denormalized form is called Dimensional Modeling. It is the technique of storing data in a Data Warehouse in such a way that enables fast query performance and easy access to its business users.
+
+If sources data are often normalized (to avoid redundancy), in the data warehouse data should be de-normalized/flatten to improve usability and performances.
+
+![Hierarchies in dimensions](_readme_img/dimension-hierarchy.png)
+
+### Conformed dimensions
+
+A conformed dimension is a dimension that is shared by multiple fact tables / stars.
+
+They are used to compare facts accros different fact tables.
+
+![Conformed dimensions](_readme_img/dimensions-conformed.png)
+
+We need to have the identical attributes or a subset of attributes used for both of these facts.
+
+![Conformed dimensions](_readme_img/dimensions-conformed-2.png)
+
+It is not necessary to have the same granularity.
+
+For instance below, in *cost fact*, we have one row = 1 day, but in *sales fact*, we have duplicated value, so several rows for a day. So there can be a different granularity.
+
+![Conformed dimensions](_readme_img/dimensions-conformed-3.png)
+
+We also can use different FK in the two fact tables linking to the same dimension.
+
+![Conformed dimensions](_readme_img/dimensions-conformed-4.png)
+
+### Degenerate dimensions
+
 
 
 ## Useful links
 
+- [The fundamentals of data warehouse architecture](https://www.thoughtspot.com/data-trends/data-modeling/data-warehouse-architecture)
 - [What is ETL? (IBM)](https://www.ibm.com/topics/etl)
-- [Java](https://www.oracle.com/java/technologies/downloads/#jdk21-windows) (if needed : `SET PENTAHO_JAVA_HOME=C:\Program Files\Java\jdk-21\`)
-- [Pentaho Community Edition](https://www.hitachivantara.com/en-us/products/pentaho-plus-platform/data-integration-analytics/pentaho-community-edition.html)
+- [Java](https://www.oracle.com/java/technologies/downloads/#jdk21-windows) 
+- [Pentaho Community Edition](https://www.hitachivantara.com/en-us/products/pentaho-plus-platform/data-integration-analytics/pentaho-community-edition.html) (if needed : `SET PENTAHO_JAVA_HOME=C:\Program Files\Java\jdk-21\`)
 - [PostgreSQL](https://www.postgresql.org/)
 - [pgAdmin](https://www.pgadmin.org/download/) (if needed delete : `C:\Users\%USERNAME%\AppData\Roaming\pgAdmin\sessions`)
-- [The fundamentals of data warehouse architecture](https://www.thoughtspot.com/data-trends/data-modeling/data-warehouse-architecture)
 
 
 
