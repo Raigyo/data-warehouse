@@ -6,7 +6,13 @@
 
 * * *
 
+
+
 ![rimg](_readme_img/datawarehouse.webp)
+
+[TOC]
+
+
 
 ## Data Warehouse
 
@@ -504,7 +510,9 @@ If sources data are often normalized (to avoid redundancy), in the data warehous
 
 ![Hierarchies in dimensions](_readme_img/dimension-hierarchy.png)
 
-### Conformed dimensions
+### Types of dimension tables ###
+
+#### Conformed dimensions
 
 A conformed dimension is a dimension that is shared by multiple fact tables / stars.
 
@@ -526,7 +534,117 @@ We also can use different FK in the two fact tables linking to the same dimensio
 
 ![Conformed dimensions](_readme_img/dimensions-conformed-4.png)
 
-### Degenerate dimensions
+#### Degenerate dimensions
+
+The degenerate dimension is a dimension key in the fact table which is generally **without attributes**. For example, purchase order number, service interruption number, etc. In the case of the service interruption number, users want to know, for example, "how many times a customer has been interrupted in a specific period of time".
+As this is a single dimension key, we avoid creating a dimension table, which means **that this dimension table has degenerated into the fact table**, which is why this key is called "degenerated dimension".
+
+![Degenerate dimensions](_readme_img/degenerate-dim.png)
+
+![Degenerate dimensions](_readme_img/degenerate-dim2.png)
+
+#### Junk dimensions (Transactional indicator/flag dimension) ####
+
+The "Junk dimension" is a dimension that contains all kinds of flags, statuses and codes with mow cardinality that are not part of any regular dimension. In the field of energy distribution, a service interruption can be of the "Low Voltage" or "Medium Voltage" type. This type of code is therefore stored in a special table called "Junk dimension" or "transactional indicator/flagdimension".
+
+It's like a box in were we store items we need but that don't fit anywhaere else.
+
+![Junk dimensions](_readme_img/junk-dim1a.png)
+
+We can also make several junk dimensions.
+
+![Junk dimensions](_readme_img/junk-dim1b.png)
+
+But take care about de many combinations (combinations^indicators).
+
+![Junk dimensions](_readme_img/junk-dim2.png)
+
+#### Role-playing dimensions
+
+A table with multiple relationships between itself and another table is known as a role-playing dimension. For example, the Sales fact in the following example has multiple relationships to Time on the keys Order Day , Ship Day , and Close Day .
+
+![Role-playing dimensions](_readme_img/role-dim1.png)
+
+![Role-playing dimensions](_readme_img/role-dim2.png)
+
+#### Causal dimensions  ####
+
+This is a dimension that provokes action. A good example of this kind of dimension is the "Promotion" dimension, which can generally cause sales. Another example, in the field of energy distribution, is the "Weather conditions" dimension, which can cause "service interruptions". The "Weather" dimension is therefore a causal dimension.
+
+#### Slowly changing dimensions ####
+
+Slowly changing dimensions refer to how data in your data warehouse changes over time. Slowly changing dimensions have the same natural key but other data columns that may or may not change over time depending on the type of dimensions that it is (ex: customer adress). 
+
+Slowly changing dimensions are important in data analytics to track how a record is changing over time. The way the database is designed directly reflects whether historical attributes can be tracked or not, determining different metrics available for the business to use. 
+
+We manage the situation by choosing between differents solutions:
+
+- Overwrite the old value
+- Versioning
+- Original value / current value
+
+#### Rapid changing dimensions ####
+
+A dimension attribute change is a rapidly changing feature. If we do not need to track changes, rapid quality is not a problem. If you need to follow the changes, then using the standard slowly changing amplitude technique can cause massive amplitude size inflation. The solution moves the attribute to its dimension, with a different foreign key. The new dimension is called a rapidly changing size.
+
+### Case stydy: Date dimension ###
+
+SQL code to create and populate DimDate: [Main ressources/DateDimension/](Main ressources/DateDimension/)
+
+### Slowly changing dimensions ###
+
+A slowly changing dimension (SCD) in data management and data warehousing is a dimension which contains relatively static data which can change slowly but unpredictably, rather than according to a regular schedule.
+
+That's why we need a type of strategy to handle changes in dimensions.
+
+1. Be proactive: Ask about potential changes
+2. Ask business user but also IT responsibles for these source data systems
+3. Each changing attribute needs its own strategy
+
+#### Type 0: Retain Original ####
+
+The Type 0 dimension attributes never change and are assigned to attributes that have durable values or are described as 'Original'. Examples: Date of Birth, Original Credit Score. Type 0 applies to most date dimension attributes (with the exception of company holidays, for example).
+
+#### Type 1: Overwrite ####
+
+This method overwrites old with new data, and therefore does not track historical data.
+Only current state is reflected.  No fact table needs to be modified. But the history is lost. Exemple: change the name of a product category
+
+Warning: in some cases it might affect existing queries.
+
+#### Type 2: New row ####
+
+This method tracks historical data by creating multiple records for a given natural key in the dimensional tables with separate surrogate keys and/or different version numbers. Unlimited history is preserved for each insert.
+
+No updates are made in the fact table.
+
+![Slowly changing dimensions](_readme_img/type2.png)
+
+##### Administrate Type 2 SCD #####
+
+We had to add the rew in the dimension first.
+
+Then lookup in the dimension with natural key + a comparison between effective and expiration date.
+
+![Slowly changing dimensions](_readme_img/type2-admin.png)
+
+We also can add a colum for instance "Is_Current"
+
+![Slowly changing dimensions](_readme_img/type2-admin2.png)
+
+##### Mixing Type 1 + 2 #####
+
+For some attributes it's not necessary to keep all the history (ex: product name), but it's not the same for major changes (ex: category).
+
+But the final decision remains to business user.
+
+#### Type 3: Additional Attributes ####
+
+This method tracks changes using separate columns and preserves limited history. The Type 3 preserves limited history as it is limited to the number of columns designated for storing historical data. The original table structure in Type 1 and Type 2 is the same but Type 3 adds **additional columns**.
+
+![Slowly changing dimensions](_readme_img/type3.png)
+
+## ETL ##
 
 
 
